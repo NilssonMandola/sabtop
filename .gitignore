@@ -1,0 +1,4 @@
+/sabtop
+/dist/
+*.test
+*.out

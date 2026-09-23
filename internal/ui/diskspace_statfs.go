@@ -1,3 +1,5 @@
+//go:build linux || darwin || freebsd
+
 package ui
 
 import "syscall"
@@ -15,9 +17,12 @@ func volumeUsage(path string) (free, total uint64, ok bool) {
 	if err := syscall.Statfs(path, &st); err != nil {
 		return 0, 0, false
 	}
+	// Field types differ across Unixes (Bavail is signed on FreeBSD), so
+	// convert rather than assume.
 	bs := uint64(st.Bsize)
-	total = st.Blocks * bs
-	free = st.Bavail * bs
+	total = uint64(st.Blocks) * bs
+	// Bavail, not Bfree: the reserved blocks are not ours to fill.
+	free = uint64(st.Bavail) * bs
 	if total == 0 {
 		return 0, 0, false
 	}

@@ -1,6 +1,9 @@
 package ui
 
-import "testing"
+import (
+	"runtime"
+	"testing"
+)
 
 func TestRate(t *testing.T) {
 	for in, want := range map[float64]string{
@@ -65,6 +68,9 @@ func TestShortName(t *testing.T) {
 }
 
 func TestVolumeUsage(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("path fixture is POSIX")
+	}
 	free, total, ok := volumeUsage("/")
 	if !ok || total == 0 || free > total {
 		t.Errorf("volumeUsage(/) = %d, %d, %v — expected a sane reading", free, total, ok)
